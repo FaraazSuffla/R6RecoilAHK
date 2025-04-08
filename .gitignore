@@ -1,0 +1,3 @@
+# Ignore compiled AHK scripts
+*.exe
+*.ahk.bak
