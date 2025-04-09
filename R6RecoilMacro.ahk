@@ -144,21 +144,38 @@ horizontalDirection := 1
 
 ; ----------- GUI -----------
 Gui, Font, s10, Segoe UI
-Gui, Add, Text, x10 y10 w120 h20, Select Side:
-Gui, Add, DropDownList, x10 y30 w120 vSelectedSide gUpdateSide Choose1,Defending|Attacking
+Gui, Margin, 10, 10
 
-Gui, Add, Text, x10 y60 w120 h20, Select Operator:
-Gui, Add, DropDownList, x10 y80 w120 vSelectedOperator gUpdateOperator
+; Side Selection
+Gui, Add, GroupBox, x10 y10 w280 h70, Side Selection
+Gui, Add, DropDownList, x20 y35 w260 vSelectedSide gUpdateSide Choose1, Defending|Attacking
 
-Gui, Add, Text, x10 y110 w120 h20, Select Weapon:
-Gui, Add, DropDownList, x10 y130 w120 vSelectedWeapon
+; Operator Selection
+Gui, Add, GroupBox, x10 y90 w280 h70, Operator Selection
+Gui, Add, DropDownList, x20 y115 w260 vSelectedOperator gUpdateOperator
 
-Gui, Add, Button, x10 y160 w120 h30 gApplyPreset, Apply Settings
-Gui, Add, Text, x10 y200 w120 h20 vStatusText, Status: INACTIVE
-Gui, Add, Text, x10 y220 w120 h20 vPresetText, Preset: %CurrentSide% - %CurrentOperator% - %CurrentWeapon%
-Gui, Show, w140 h250, Recoil Control
+; Weapon Selection
+Gui, Add, GroupBox, x10 y170 w280 h70, Weapon Selection
+Gui, Add, DropDownList, x20 y195 w260 vSelectedWeapon
 
+; Settings Section
+Gui, Add, GroupBox, x10 y250 w280 h110, Settings
+Gui, Add, Text, x20 y275 w80 h20, ADS Multiplier:
+Gui, Add, Slider, x110 y275 w160 h20 vADSMultiplierSlider Range50-150 ToolTip, % ADSMultiplier*100
+Gui, Add, Text, x20 y305 w80 h20, Delay (ms):
+Gui, Add, Slider, x110 y305 w160 h20 vDelaySlider Range1-20 TickInterval5 ToolTip, % DelayRate
+Gui, Add, Button, x20 y330 w120 h25 gApplySettings, Apply Settings
+
+; Status Section
+Gui, Add, GroupBox, x10 y370 w280 h80, Status
+Gui, Add, Text, x20 y395 w260 h20 vStatusText, Status: INACTIVE
+Gui, Add, Text, x20 y420 w260 h20 vPresetText, Preset: None Selected
+
+; Initialize GUI
+GuiControl,, ADSMultiplierSlider, % ADSMultiplier*100
+GuiControl,, DelaySlider, % DelayRate
 Gosub, UpdateSide
+Gui, Show, w300 h460, Rainbow Six Recoil Control
 
 ; ----------- HOTKEY REGISTER -----------
 Hotkey, % "*" ToggleKey, ToggleRecoil, On
@@ -170,12 +187,21 @@ UpdateSide:
     Gui, Submit, NoHide
     CurrentSide := SelectedSide
     GuiControl,, SelectedOperator,|
+    
+    operatorList := ""
     for operator, _ in RecoilPresets[CurrentSide]
-        GuiControl,, SelectedOperator, %operator%
+        operatorList .= operator "|"
+    
+    GuiControl,, SelectedOperator, %operatorList%
+    
+    ; Select first operator by default
     for operator, _ in RecoilPresets[CurrentSide]
+    {
+        CurrentOperator := operator
+        GuiControl, ChooseString, SelectedOperator, %CurrentOperator%
         break
-    CurrentOperator := operator
-    GuiControl, ChooseString, SelectedOperator, %CurrentOperator%
+    }
+    
     Gosub, UpdateOperator
 return
 
@@ -183,25 +209,45 @@ UpdateOperator:
     Gui, Submit, NoHide
     CurrentOperator := SelectedOperator
     GuiControl,, SelectedWeapon,|
+    
+    weaponList := ""
     for weapon, _ in RecoilPresets[CurrentSide][CurrentOperator]
-        GuiControl,, SelectedWeapon, %weapon%
+        weaponList .= weapon "|"
+    
+    GuiControl,, SelectedWeapon, %weaponList%
+    
+    ; Select first weapon by default
     for weapon, _ in RecoilPresets[CurrentSide][CurrentOperator]
+    {
+        CurrentWeapon := weapon
+        GuiControl, ChooseString, SelectedWeapon, %CurrentWeapon%
         break
-    CurrentWeapon := weapon
-    GuiControl, ChooseString, SelectedWeapon, %CurrentWeapon%
+    }
+    
+    UpdatePresetText()
 return
 
-ApplyPreset:
+ApplySettings:
     Gui, Submit, NoHide
     CurrentSide := SelectedSide
     CurrentOperator := SelectedOperator
     CurrentWeapon := SelectedWeapon
-    GuiControl,, PresetText, Preset: %CurrentSide% - %CurrentOperator% - %CurrentWeapon%
+    ADSMultiplier := ADSMultiplierSlider/100
+    DelayRate := DelaySlider
+    
+    UpdatePresetText()
+    
     if (isActive)
         GuiControl,, StatusText, Status: ACTIVE (%CurrentSide% - %CurrentOperator% - %CurrentWeapon%)
-    ToolTip, Loaded: %CurrentOperator% - %CurrentWeapon%
+    
+    ToolTip, Settings Applied`n%CurrentOperator% - %CurrentWeapon%`nADS: %ADSMultiplier%x`nDelay: %DelayRate%ms
     SetTimer, RemoveToolTip, -1500
 return
+
+UpdatePresetText() {
+    global
+    GuiControl,, PresetText, Preset: %CurrentSide% - %CurrentOperator% - %CurrentWeapon%
+}
 
 GuiClose:
     ExitApp
