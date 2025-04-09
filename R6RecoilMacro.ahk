@@ -1,5 +1,4 @@
-﻿; ----------- CONFIG -----------
-#NoEnv
+﻿#NoEnv
 #SingleInstance Force
 SendMode Input
 SetBatchLines -1
@@ -8,12 +7,45 @@ SetWorkingDir %A_ScriptDir%
 ; ----------- GLOBALS -----------
 configFile := A_ScriptDir . "\recoil_config.ini"
 defaultSettings := {ToggleKey: "=", DelayRate: 5, ADSMultiplier: 0.7}
+GameSettingsFile := ""
 
 ; ----------- LOAD OR INITIALIZE CONFIG -----------
 if (!FileExist(configFile)) {
     CreateDefaultConfig()
+    
+    ; First-time setup: Ask user to locate GameSettings.ini
+    MsgBox, 4, First-Time Setup, Welcome! For best results, please locate your Rainbow Six Siege GameSettings.ini.`n`nDo you want to locate it now?
+    IfMsgBox, Yes
+    {
+        FileSelectFile, GameSettingsFile, 3, , Select GameSettings.ini, Configuration Files (*.ini)
+        if (GameSettingsFile != "") {
+            IniWrite, %GameSettingsFile%, %configFile%, Path, GameSettingsPath
+        }
+    }
+} else {
+    ; Load previously saved path
+    IniRead, GameSettingsFile, %configFile%, Path, GameSettingsPath, %A_Space%
+    if (!FileExist(GameSettingsFile)) {
+        GameSettingsFile := ""
+    }
 }
+
 LoadConfig()
+
+; ----------- LOAD SENSITIVITY SETTINGS -----------
+if (FileExist(GameSettingsFile)) {
+    IniRead, MouseSensitivity, %GameSettingsFile%, INPUT, MouseSensitivity, 50
+    IniRead, MouseYawSensitivity, %GameSettingsFile%, INPUT, MouseYawSensitivity, 11
+    IniRead, MousePitchSensitivity, %GameSettingsFile%, INPUT, MousePitchSensitivity, 11
+    IniRead, MouseSensitivityMultiplierUnit, %GameSettingsFile%, INPUT, MouseSensitivityMultiplierUnit, 0.02
+    IniRead, ADSMouseSensitivity1x, %GameSettingsFile%, INPUT, ADSMouseSensitivity1x, 35
+
+    ; Calculate ADS sensitivity scaling
+    if (ADSMouseSensitivity1x != "" && MouseSensitivityMultiplierUnit != "") {
+        ADSMultiplier := (ADSMouseSensitivity1x / 50) * (MouseSensitivityMultiplierUnit / 0.02)
+        IniWrite, %ADSMultiplier%, %configFile%, Settings, ADSMultiplier
+    }
+}
 
 ; ----------- PRESETS -----------
 RecoilPresets := Object()
@@ -83,14 +115,14 @@ BuildGUI() {
     Gui, Add, Text, x20 y425 w80 h20, Delay (ms):
     Gui, Add, Slider, x110 y425 w160 h20 vDelaySlider Range1-20 TickInterval5 gLiveUpdate ToolTip
     
+    ; Sensitivity Info
+    Gui, Add, GroupBox, x10 y490 w280 h60, Sensitivity Info
+    Gui, Add, Text, x20 y515 w260 h20 vSensText, % "GameSettings.ini: " (FileExist(GameSettingsFile) ? "Loaded" : "Not found")
+    Gui, Add, Text, x20 y540 w260 h20 vADSText, % "Current ADS Multiplier: " Round(ADSMultiplier, 2)
+    
     ; Control Buttons
     Gui, Add, Button, x20 y450 w120 h30 gApplySettings, Apply Settings
     Gui, Add, Button, x170 y450 w120 h30 gResetToDefaults, Reset Defaults
-    
-    ; Status Section
-    Gui, Add, GroupBox, x10 y490 w280 h60, Status
-    Gui, Add, Text, x20 y515 w260 h20 vStatusText, Status: INACTIVE
-    Gui, Add, Text, x20 y540 w260 h20 vPresetText, Preset: None Selected
     
     ; Initialize controls
     GuiControl, ChooseString, SelectedSide, %CurrentSide%
@@ -297,8 +329,9 @@ ApplySettings:
     ; Update in-memory preset
     RecoilPresets[CurrentSide][CurrentOperator][CurrentWeapon] := [VertSlider, HorizSlider, 0]
     
-    UpdatePresetText()
-    ToolTip  ; Remove any existing tooltip first
+    ; Update sensitivity info display
+    GuiControl,, ADSText, % "Current ADS Multiplier: " Round(ADSMultiplier, 2)
+    
     ToolTip, Settings Saved!`n%CurrentOperator% - %CurrentWeapon%, , , 2
     SetTimer, RemoveToolTip, -1500
 return
