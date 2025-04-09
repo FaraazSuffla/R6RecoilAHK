@@ -156,26 +156,36 @@ Gui, Add, DropDownList, x20 y115 w260 vSelectedOperator gUpdateOperator
 
 ; Weapon Selection
 Gui, Add, GroupBox, x10 y170 w280 h70, Weapon Selection
-Gui, Add, DropDownList, x20 y195 w260 vSelectedWeapon
+Gui, Add, DropDownList, x20 y195 w260 vSelectedWeapon gUpdateWeapon
+
+; Recoil Adjustment
+Gui, Add, GroupBox, x10 y250 w280 h110, Recoil Adjustment
+Gui, Add, Text, x20 y275 w80 h20, Vertical (Y):
+Gui, Add, Slider, x110 y275 w160 h20 vVertSlider Range0-30 ToolTip, 5
+Gui, Add, Text, x20 y300 w80 h20, Horizontal (X):
+Gui, Add, Slider, x110 y300 w160 h20 vHorizSlider Range-10-10 ToolTip, 1
 
 ; Settings Section
-Gui, Add, GroupBox, x10 y250 w280 h110, Settings
-Gui, Add, Text, x20 y275 w80 h20, ADS Multiplier:
-Gui, Add, Slider, x110 y275 w160 h20 vADSMultiplierSlider Range50-150 ToolTip, % ADSMultiplier*100
-Gui, Add, Text, x20 y305 w80 h20, Delay (ms):
-Gui, Add, Slider, x110 y305 w160 h20 vDelaySlider Range1-20 TickInterval5 ToolTip, % DelayRate
-Gui, Add, Button, x20 y330 w120 h25 gApplySettings, Apply Settings
+Gui, Add, GroupBox, x10 y370 w280 h70, Settings
+Gui, Add, Text, x20 y395 w80 h20, ADS Multiplier:
+Gui, Add, Slider, x110 y395 w160 h20 vADSMultiplierSlider Range50-150 ToolTip, % ADSMultiplier*100
+Gui, Add, Text, x20 y425 w80 h20, Delay (ms):
+Gui, Add, Slider, x110 y425 w160 h20 vDelaySlider Range1-20 TickInterval5 ToolTip, % DelayRate
+
+; Control Buttons
+Gui, Add, Button, x20 y450 w120 h30 gApplySettings, Apply Settings
+Gui, Add, Button, x170 y450 w120 h30 gResetDefaults, Reset Defaults
 
 ; Status Section
-Gui, Add, GroupBox, x10 y370 w280 h80, Status
-Gui, Add, Text, x20 y395 w260 h20 vStatusText, Status: INACTIVE
-Gui, Add, Text, x20 y420 w260 h20 vPresetText, Preset: None Selected
+Gui, Add, GroupBox, x10 y490 w280 h60, Status
+Gui, Add, Text, x20 y515 w260 h20 vStatusText, Status: INACTIVE
+Gui, Add, Text, x20 y540 w260 h20 vPresetText, Preset: None Selected
 
 ; Initialize GUI
 GuiControl,, ADSMultiplierSlider, % ADSMultiplier*100
 GuiControl,, DelaySlider, % DelayRate
 Gosub, UpdateSide
-Gui, Show, w300 h460, Rainbow Six Recoil Control
+Gui, Show, w300 h570, Rainbow Six Recoil Control
 
 ; ----------- HOTKEY REGISTER -----------
 Hotkey, % "*" ToggleKey, ToggleRecoil, On
@@ -224,24 +234,47 @@ UpdateOperator:
         break
     }
     
+    Gosub, UpdateWeapon
+return
+
+UpdateWeapon:
+    Gui, Submit, NoHide
+    CurrentWeapon := SelectedWeapon
+    
+    ; Update sliders with current weapon's preset
+    if (CurrentSide && CurrentOperator && CurrentWeapon)
+    {
+        preset := RecoilPresets[CurrentSide][CurrentOperator][CurrentWeapon]
+        GuiControl,, VertSlider, % preset[1]
+        GuiControl,, HorizSlider, % preset[2]
+    }
+    
     UpdatePresetText()
 return
 
 ApplySettings:
     Gui, Submit, NoHide
-    CurrentSide := SelectedSide
-    CurrentOperator := SelectedOperator
-    CurrentWeapon := SelectedWeapon
     ADSMultiplier := ADSMultiplierSlider/100
     DelayRate := DelaySlider
+    
+    ; Update recoil preset if sliders were adjusted
+    if (CurrentSide && CurrentOperator && CurrentWeapon)
+    {
+        RecoilPresets[CurrentSide][CurrentOperator][CurrentWeapon] := [VertSlider, HorizSlider, 0]
+    }
     
     UpdatePresetText()
     
     if (isActive)
         GuiControl,, StatusText, Status: ACTIVE (%CurrentSide% - %CurrentOperator% - %CurrentWeapon%)
     
-    ToolTip, Settings Applied`n%CurrentOperator% - %CurrentWeapon%`nADS: %ADSMultiplier%x`nDelay: %DelayRate%ms
+    ToolTip, Settings Applied`n%CurrentOperator% - %CurrentWeapon%`nY: %VertSlider% | X: %HorizSlider%`nADS: %ADSMultiplier%x | Delay: %DelayRate%ms
     SetTimer, RemoveToolTip, -1500
+return
+
+ResetDefaults:
+    ; Reload script to reset all values to original
+    Reload
 return
 
 UpdatePresetText() {
