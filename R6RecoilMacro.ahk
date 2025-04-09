@@ -47,10 +47,10 @@ RecoilPresets["Defending"]["Ela"] := Object()
 RecoilPresets["Defending"]["Ela"]["Default"] := [3, 1, 0]
 
 RecoilPresets["Defending"]["Frost"] := Object()
-RecoilPresets["Defending"]["Frost"]["Default"] := [5, 1, 0]
+RecoilPresets["Defending"]["Frost"]["9mm-C1"] := [9, 0, 0]
 
 RecoilPresets["Defending"]["Goyo"] := Object()
-RecoilPresets["Defending"]["Goyo"]["Default"] := [9, 1, 0]
+RecoilPresets["Defending"]["Goyo"]["Vector.45"] := [21, -0.25, 0]
 
 RecoilPresets["Defending"]["Jager"] := Object()
 RecoilPresets["Defending"]["Jager"]["Default"] := [4, 1, 0]
@@ -71,13 +71,13 @@ RecoilPresets["Defending"]["Melusi"] := Object()
 RecoilPresets["Defending"]["Melusi"]["Default"] := [5, 1, 0]
 
 RecoilPresets["Defending"]["Mira"] := Object()
-RecoilPresets["Defending"]["Mira"]["Default"] := [5, 1, 0]
+RecoilPresets["Defending"]["Mira"]["Vector.45"] := [17, -0.25, 0]
 
 RecoilPresets["Defending"]["Mozzie"] := Object()
 RecoilPresets["Defending"]["Mozzie"]["Default"] := [5, 1, 0]
 
 RecoilPresets["Defending"]["Mute"] := Object()
-RecoilPresets["Defending"]["Mute"]["Default"] := [5, 1, 0]
+RecoilPresets["Defending"]["Mute"]["SMG-11"] := [22, -0.05, 0]
 
 RecoilPresets["Defending"]["Pulse"] := Object()
 RecoilPresets["Defending"]["Pulse"]["Default"] := [5, 1, 0]
@@ -86,7 +86,7 @@ RecoilPresets["Defending"]["Rook"] := Object()
 RecoilPresets["Defending"]["Rook"]["Default"] := [4, 1, 0]
 
 RecoilPresets["Defending"]["Smoke"] := Object()
-RecoilPresets["Defending"]["Smoke"]["Default"] := [5, 1, 0]
+RecoilPresets["Defending"]["Smoke"]["SMG-11"] := [22, -0.05, 0]
 
 RecoilPresets["Defending"]["Solis"] := Object()
 RecoilPresets["Defending"]["Solis"]["Default"] := [9, 1, 0]
@@ -101,7 +101,7 @@ RecoilPresets["Defending"]["Valkyrie"] := Object()
 RecoilPresets["Defending"]["Valkyrie"]["Default"] := [5, 1, 0]
 
 RecoilPresets["Defending"]["Vigil"] := Object()
-RecoilPresets["Defending"]["Vigil"]["Default"] := [5, 1, 0]
+RecoilPresets["Defending"]["Vigil"]["SMG-12"] := [22, 5, 0]
 
 RecoilPresets["Defending"]["Wamai"] := Object()
 RecoilPresets["Defending"]["Wamai"]["Default"] := [5, 1, 0]
@@ -125,7 +125,7 @@ RecoilPresets["Attacking"]["Capitao"] := Object()
 RecoilPresets["Attacking"]["Capitao"]["Default"] := [5, 1, 0]
 
 RecoilPresets["Attacking"]["Dokkaebi"] := Object()
-RecoilPresets["Attacking"]["Dokkaebi"]["Default"] := [5, 1, 0]
+RecoilPresets["Attacking"]["Dokkaebi"]["SMG-12"] := [22, 5, 0]
 
 RecoilPresets["Attacking"]["Finka"] := Object()
 RecoilPresets["Attacking"]["Finka"]["Default"] := [5, 1, 0]
