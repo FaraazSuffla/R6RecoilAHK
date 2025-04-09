@@ -298,6 +298,7 @@ ApplySettings:
     RecoilPresets[CurrentSide][CurrentOperator][CurrentWeapon] := [VertSlider, HorizSlider, 0]
     
     UpdatePresetText()
+    ToolTip  ; Remove any existing tooltip first
     ToolTip, Settings Saved!`n%CurrentOperator% - %CurrentWeapon%, , , 2
     SetTimer, RemoveToolTip, -1500
 return
@@ -344,9 +345,11 @@ return
 
 ; ----------- UTILITY -----------
 RemoveToolTip:
-    ToolTip
+    Loop, 20  ; Remove up to 20 possible tooltips
+    {
+        ToolTip,,,, %A_Index%
+    }
 return
-
 GuiClose:
     ExitApp
 return
