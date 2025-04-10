@@ -191,6 +191,9 @@ InitializePresets() {
     RecoilPresets["Defending"]["Smoke"] := Object()
     RecoilPresets["Defending"]["Smoke"]["SMG-11"] := [22, -0.05, 0]
 
+    RecoilPresets["Defending"]["Tchunks"] := Object()
+    RecoilPresets["Defending"]["Tchunks"]["Default"] := [14, 0.5, 0]
+
     RecoilPresets["Defending"]["Valkyrie"] := Object()
     RecoilPresets["Defending"]["Valkyrie"]["Default"] := [5, 1, 0]
 
